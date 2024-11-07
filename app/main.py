@@ -13,7 +13,6 @@ def main():
         if "ping" in data.lower():
             message = "+PONG\r\n".encode()
             client_socket.sendall(message)
-            break
 
 if __name__ == "__main__":
     main()
