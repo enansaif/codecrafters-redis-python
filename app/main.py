@@ -11,7 +11,6 @@ def main():
         client_socket, _ = server_socket.accept()
         message = "+PONG\r\n".encode()
         client_socket.sendall(message)
-        client_socket.close()
 
 if __name__ == "__main__":
     main()
