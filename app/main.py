@@ -2,20 +2,35 @@ import socket
 import threading
 from .parser import RedisParser
 
-def simple_redis_serializer(s):
-    return f"${len(s)}\r\n{s}\r\n"
+def simple_redis_serializer(data):
+    if data == None:
+        return "$-1\r\n"
+    if type(data) == int:
+        return f":{str(int)}\r\n"
+    return f"${len(data)}\r\n{data}\r\n"
 
 def handle_request(connection):
     redis_parser = RedisParser()
+    db = {}
     while True:
         data = connection.recv(1024)
         data = data.decode().lower()
         data = redis_parser.parse(data)
-        if type(data) == list and data[0] == 'ping':
+        if data[0] == 'ping':
             response = "+PONG\r\n"
             connection.sendall(response.encode())
-        if type(data) == list and data[0] == 'echo':
+        if data[0] == 'echo':
             response = simple_redis_serializer(data[-1])
+            connection.sendall(response.encode())
+        if data[0] == 'set':
+            _, key, value = data
+            db[key] = value
+            response = "+OK\r\n"
+            connection.sendall(response.encode())
+        if data[0] == 'get':
+            _, key = data
+            value = db.get(key, None)
+            response = simple_redis_serializer(value)
             connection.sendall(response.encode())
 
 def main():
