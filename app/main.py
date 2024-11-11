@@ -2,6 +2,9 @@ import socket
 import threading
 from .parser import RedisParser
 
+def simple_redis_serializer(s):
+    return f"${len(s)}\r\n{s}\r\n"
+
 def handle_request(connection):
     redis_parser = RedisParser()
     while True:
@@ -9,9 +12,11 @@ def handle_request(connection):
         data = data.decode().lower()
         data = redis_parser.parse(data)
         if type(data) == list and data[0] == 'ping':
-            connection.sendall("+PONG\r\n".encode())
+            response = "+PONG\r\n"
+            connection.sendall(response.encode())
         if type(data) == list and data[0] == 'echo':
-            connection.sendall(data[-1].encode())
+            response = simple_redis_serializer(data[-1])
+            connection.sendall(response.encode())
 
 def main():
     print("Logs from your program will appear here!")
