@@ -1,15 +1,17 @@
 import socket
 import threading
+from parser import RedisParser
 
 def handle_request(connection):
-    response = "+PONG\r\n".encode()
-    with connection:
-        connected = True
-        while connected:
-            data = connection.recv(512)
-            data_str = data.decode().lower()
-            if "ping" in data_str:
-                connection.sendall(response)
+    redis_parser = RedisParser()
+    while True:
+        data = connection.recv(1024)
+        data = data.decode().lower()
+        data = redis_parser().parse(data)
+        if type(data) == list and data[0] == 'ping':
+            connection.sendall("+PONG\r\n".encode())
+        if type(data) == list and data[0] == 'echo':
+            connection.sendall(data[-1].encode())
 
 def main():
     print("Logs from your program will appear here!")
