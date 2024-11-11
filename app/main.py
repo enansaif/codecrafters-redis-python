@@ -1,6 +1,6 @@
 import socket
 import threading
-from parser import RedisParser
+from .parser import RedisParser
 
 def handle_request(connection):
     redis_parser = RedisParser()
