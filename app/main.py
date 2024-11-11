@@ -7,7 +7,7 @@ def handle_request(connection):
     while True:
         data = connection.recv(1024)
         data = data.decode().lower()
-        data = redis_parser().parse(data)
+        data = redis_parser.parse(data)
         if type(data) == list and data[0] == 'ping':
             connection.sendall("+PONG\r\n".encode())
         if type(data) == list and data[0] == 'echo':
