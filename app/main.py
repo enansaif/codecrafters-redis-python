@@ -1,6 +1,7 @@
 import socket
 import threading
 from .parser import RedisParser
+from .db import TimedDictionary
 
 def simple_redis_serializer(data):
     if data == None:
@@ -11,7 +12,7 @@ def simple_redis_serializer(data):
 
 def handle_request(connection):
     redis_parser = RedisParser()
-    db = {}
+    db = TimedDictionary()
     while True:
         data = connection.recv(1024)
         data = data.decode().lower()
@@ -23,13 +24,15 @@ def handle_request(connection):
             response = simple_redis_serializer(data[-1])
             connection.sendall(response.encode())
         if data[0] == 'set':
-            _, key, value = data
-            db[key] = value
+            if 'px' not in data:
+                db.set(data[1], data[2])
+            else:
+                db.set(data[1], data[2], data[4])
             response = "+OK\r\n"
             connection.sendall(response.encode())
         if data[0] == 'get':
             _, key = data
-            value = db.get(key, None)
+            value = db.get(key)
             response = simple_redis_serializer(value)
             connection.sendall(response.encode())
 
