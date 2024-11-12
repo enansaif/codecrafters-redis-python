@@ -25,8 +25,8 @@ def handle_request(connection):
             connection.sendall(response.encode())
         if data[0] == 'set':
             _, key, value, *px = data
-            expiry_ms = px[-1] if px else float('inf')
-            db.set(key, value, expiry_ms)
+            ms = int(px[-1]) if px else float('inf')
+            db.set(key, value, ms)
             response = "+OK\r\n"
             connection.sendall(response.encode())
         if data[0] == 'get':
