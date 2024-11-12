@@ -4,9 +4,8 @@ class TimedDictionary():
     def __init__(self):
         self.db = {}
     
-    def set(self, key, value, expiry_time=float('inf')):
-        if expiry_time != float('inf'):
-            expiry_time = time.time() + (expiry_time / 1000)
+    def set(self, key, value, expiry_ms):
+        expiry_time = time.time() + (expiry_ms / 1000)
         self.db[key] = (value, expiry_time)
     
     def get(self, key):

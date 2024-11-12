@@ -24,10 +24,9 @@ def handle_request(connection):
             response = simple_redis_serializer(data[-1])
             connection.sendall(response.encode())
         if data[0] == 'set':
-            if 'px' not in data:
-                db.set(data[1], data[2])
-            else:
-                db.set(data[1], data[2], int(data[4]))
+            _, key, value, *px = data
+            expiry_ms = px[-1] if px else float('inf')
+            db.set(key, value, expiry_ms)
             response = "+OK\r\n"
             connection.sendall(response.encode())
         if data[0] == 'get':
