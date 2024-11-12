@@ -12,7 +12,7 @@ class TimedDictionary():
     def get(self, key):
         if key not in self.db:
             return None
-        value, expiry_time = self.store[key]
+        value, expiry_time = self.db[key]
         if expiry_time > time.time():
             return value
         del self.db[key]
