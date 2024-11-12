@@ -27,7 +27,7 @@ def handle_request(connection):
             if 'px' not in data:
                 db.set(data[1], data[2])
             else:
-                db.set(data[1], data[2], data[4])
+                db.set(data[1], data[2], int(data[4]))
             response = "+OK\r\n"
             connection.sendall(response.encode())
         if data[0] == 'get':
