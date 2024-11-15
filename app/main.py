@@ -2,13 +2,17 @@ import socket
 import threading
 from .parser import RedisParser
 from .db import TimedDictionary
+from .config import config
 
-def simple_redis_serializer(data):
+def serializer(data):
     if data == None:
         return "$-1\r\n"
     if type(data) == int:
         return f":{str(int)}\r\n"
-    return f"${len(data)}\r\n{data}\r\n"
+    if type(data) == str:
+        return f"${len(data)}\r\n{data}\r\n"
+    content = "".join(serializer(s) for s in data)
+    return f"*{len(data)}\r\n{content}"
 
 def handle_request(connection):
     redis_parser = RedisParser()
@@ -21,7 +25,7 @@ def handle_request(connection):
             response = "+PONG\r\n"
             connection.sendall(response.encode())
         if data[0] == 'echo':
-            response = simple_redis_serializer(data[-1])
+            response = serializer(data[-1])
             connection.sendall(response.encode())
         if data[0] == 'set':
             _, key, value, *px = data
@@ -32,7 +36,14 @@ def handle_request(connection):
         if data[0] == 'get':
             _, key = data
             value = db.get(key)
-            response = simple_redis_serializer(value)
+            response = serializer(value)
+            connection.sendall(response.encode())
+        if data[0] == 'config':
+            pairs = []
+            for key in data[2:]:
+                pairs.append(key)
+                pairs.append(config.get(key, None))
+            response = serializer(pairs)
             connection.sendall(response.encode())
 
 def main():
