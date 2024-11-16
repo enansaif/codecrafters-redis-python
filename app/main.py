@@ -1,5 +1,6 @@
 import socket
 import threading
+import argparse
 from .parser import RedisParser
 from .db import TimedDictionary
 from .config import config
@@ -47,7 +48,16 @@ def handle_request(connection):
             connection.sendall(response.encode())
 
 def main():
-    print("Logs from your program will appear here!")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dir", type=str)
+    parser.add_argument("--dbfilename", type=str)
+    parser.parse_args()
+    
+    if parser.dir:
+        config["dir"] = parser.dir
+    if parser.dbfilename:
+        config["dbfilename"] = parser.dbfilename
+    
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     
     while True:
