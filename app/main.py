@@ -51,12 +51,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dir", type=str)
     parser.add_argument("--dbfilename", type=str)
-    parser.parse_args()
+    args = parser.parse_args()
     
-    if parser.dir:
-        config["dir"] = parser.dir
-    if parser.dbfilename:
-        config["dbfilename"] = parser.dbfilename
+    if args.dir:
+        config["dir"] = args.dir
+    if args.dbfilename:
+        config["dbfilename"] = args.dbfilename
     
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     
